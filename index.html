@@ -197,7 +197,7 @@
   @keyframes pulse{ 0%,100%{opacity:0.2;} 50%{opacity:0.9;} }
 
   /* ---------- Sections ---------- */
-  section{ padding:100px 20px; position:relative; }
+  section{ padding:100px 20px; position:relative; scroll-margin-top:74px; }
   .section-inner{ max-width:960px; margin:0 auto; }
   .center{ text-align:center; }
   .sec-head{ text-align:center; margin-bottom:56px; }
@@ -223,22 +223,28 @@
 
   /* Details */
   .details-grid{
-    display:grid; grid-template-columns:1fr 1fr; gap:2px;
-    background:var(--line); border:1px solid var(--line);
+    display:grid; grid-template-columns:1fr 1fr; gap:34px;
+    max-width:900px; margin:0 auto;
   }
+  @media(max-width:640px){ .details-grid{ grid-template-columns:1fr; gap:28px; } }
   .detail-card{
-    background:var(--ivory); padding:44px 30px 38px; text-align:center; position:relative;
+    background:var(--ivory); padding:0 0 38px; text-align:center; position:relative;
+    border:1px solid var(--line);
   }
-  .photo-placeholder{
-    width:100%; aspect-ratio:4/3; margin:0 auto 26px;
-    border:1px dashed var(--gold); background:rgba(176,141,79,0.06);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-    color:var(--gold);
+  .venue-photo{
+    width:100%; aspect-ratio:4/3; margin:0 0 26px; overflow:hidden;
+    position:relative; border-bottom:1px solid var(--line);
   }
-  .photo-placeholder svg{ width:34px; height:28px; }
-  .photo-placeholder span{
-    font-family:'Cinzel', serif; font-size:0.58rem; letter-spacing:0.14em; text-transform:uppercase;
-    color:var(--maroon-soft);
+  .venue-photo img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    filter:saturate(0.92) sepia(0.06);
+    transition:transform .6s ease;
+  }
+  .detail-card:hover .venue-photo img{ transform:scale(1.05); }
+  .venue-photo::after{
+    content:''; position:absolute; inset:0;
+    box-shadow:inset 0 0 0 1px rgba(217,188,132,0.4);
+    pointer-events:none;
   }
   .detail-card .venue-icon{
     width:36px; height:36px; margin:0 auto 16px; color:var(--gold);
@@ -288,9 +294,16 @@
     text-transform:uppercase; color:var(--maroon); text-align:center;
     margin-bottom:20px; position:relative;
   }
+  .h3-icon{
+    width:14px; height:14px; display:inline-block; vertical-align:-2px;
+    margin-right:7px; color:var(--gold);
+  }
   .ent-single{
     text-align:center; font-family:'Cormorant Garamond', serif; font-size:1.4rem;
     color:var(--charcoal); font-style:italic;
+  }
+  .ent-single-group{
+    display:flex; flex-direction:column; align-items:center; gap:6px;
   }
   .ent-columns{
     columns:2; column-gap:36px; max-width:760px; margin:0 auto;
@@ -308,6 +321,17 @@
   .ent-grid .name{
     font-family:'Cormorant Garamond', serif; font-size:1.08rem; text-align:center; padding:5px 0;
   }
+  .role-group{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:38px 48px; max-width:700px; margin:0 auto;
+  }
+  .role-item{ text-align:center; min-width:150px; }
+  .role-tag{
+    display:inline-block; font-family:'Cinzel', serif; font-size:0.6rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--gold); padding-bottom:6px; margin-bottom:10px;
+    border-bottom:1px solid var(--gold);
+  }
+  .role-names{ display:flex; flex-direction:column; gap:5px; }
+  .role-names span{ font-family:'Cormorant Garamond', serif; font-size:1.04rem; color:var(--charcoal); }
   .sponsors-block{
     max-width:820px; margin:0 auto 44px; padding:34px 30px;
     background:linear-gradient(180deg, rgba(176,141,79,0.06), rgba(176,141,79,0.02));
@@ -436,7 +460,35 @@
     html{ scroll-behavior:auto; }
     #loader .mono{ animation:none; opacity:1; }
     .countdown .divider, .scroll-cue span{ animation:none; }
+    .reveal{ opacity:1 !important; transform:none !important; }
   }
+
+  /* ---------- Enhancements: reveal, hover depth, back-to-top ---------- */
+  .reveal{
+    opacity:0; transform:translateY(22px);
+    transition:opacity .8s ease, transform .8s ease;
+  }
+  .reveal.in-view{ opacity:1; transform:translateY(0); }
+
+  .detail-card, .gift-card{ transition:box-shadow .4s ease, transform .4s ease; }
+  .detail-card:hover{ box-shadow:0 18px 40px -20px rgba(62,11,18,0.35); transform:translateY(-4px); }
+  .gift-card:hover{ box-shadow:0 24px 50px -22px rgba(0,0,0,0.45); }
+
+  .role-item, .ent-grid .name, .ent-columns .pair{ transition:color .25s ease; }
+  .role-item:hover .role-tag{ color:var(--maroon); border-color:var(--maroon); }
+
+  #backToTop{
+    position:fixed; right:20px; bottom:20px; z-index:400;
+    width:42px; height:42px; border-radius:50%;
+    background:var(--maroon-deep); border:1px solid var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; visibility:hidden; transform:translateY(10px);
+    transition:opacity .35s ease, transform .35s ease, visibility .35s ease;
+    cursor:pointer;
+  }
+  #backToTop.show{ opacity:1; visibility:visible; transform:translateY(0); }
+  #backToTop svg{ width:14px; height:14px; color:var(--gold-light); }
+  #backToTop:hover{ background:var(--maroon); }
 </style>
 </head>
 <body>
@@ -493,6 +545,139 @@
       <path d="M2 24 L14 16 L20 21 L27 13 L38 22"/>
     </g>
   </symbol>
+  <symbol id="icon-leaf" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1">
+      <path d="M10 2.5 C15.5 5 16.5 11 10 17.5 C3.5 11 4.5 5 10 2.5 Z"/>
+      <path d="M10 5 L10 15"/>
+    </g>
+  </symbol>
+  <symbol id="icon-arrow-up" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 16 L10 4"/>
+      <path d="M5 9 L10 4 L15 9"/>
+    </g>
+  </symbol>
+  <symbol id="icon-heart" viewBox="0 0 20 20">
+    <path fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round"
+      d="M10 17 C4.5 12.3 2 8.7 4.6 5.9 C6.6 3.8 9.4 4.6 10 7 C10.6 4.6 13.4 3.8 15.4 5.9 C18 8.7 15.5 12.3 10 17 Z"/>
+  </symbol>
+  <symbol id="icon-shield" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M10 2 L16 4.3 V9.2 C16 13.6 13.3 16.5 10 18 C6.7 16.5 4 13.6 4 9.2 V4.3 Z"/>
+      <path d="M7.2 9.6 L9.2 11.6 L13 7.4"/>
+    </g>
+  </symbol>
+  <symbol id="icon-medal" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round">
+      <path d="M7 9.5 L5.2 18 L10 15 L14.8 18 L13 9.5"/>
+      <circle cx="10" cy="7" r="4.3"/>
+    </g>
+  </symbol>
+  <symbol id="icon-crown" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M4 16 L4 8.5 L7.6 11.5 L10 6 L12.4 11.5 L16 8.5 L16 16 Z"/>
+      <path d="M4 16 L16 16"/>
+    </g>
+  </symbol>
+  <symbol id="icon-bowtie" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round">
+      <path d="M3 6.5 L9 10 L3 13.5 Z"/>
+      <path d="M17 6.5 L11 10 L17 13.5 Z"/>
+      <rect x="9" y="9" width="2" height="2"/>
+    </g>
+  </symbol>
+  <symbol id="icon-bouquet" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round">
+      <path d="M10 18 L10 12" stroke-linecap="round"/>
+      <circle cx="10" cy="6.5" r="2.1"/>
+      <circle cx="6.6" cy="8.6" r="2.1"/>
+      <circle cx="13.4" cy="8.6" r="2.1"/>
+      <circle cx="10" cy="10.5" r="2.1"/>
+    </g>
+  </symbol>
+  <symbol id="icon-candle" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" stroke-linecap="round">
+      <rect x="7.5" y="7" width="5" height="11"/>
+      <path d="M10 7 C8.8 5 10.4 3.8 9.8 2 C11.2 3.2 11.8 4.8 10 7 Z"/>
+    </g>
+  </symbol>
+  <symbol id="icon-flower" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1">
+      <circle cx="10" cy="6" r="2.2"/>
+      <circle cx="14.2" cy="10" r="2.2"/>
+      <circle cx="10" cy="14" r="2.2"/>
+      <circle cx="5.8" cy="10" r="2.2"/>
+      <circle cx="10" cy="10" r="1.6"/>
+    </g>
+  </symbol>
+  <symbol id="icon-bubble" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1">
+      <circle cx="7.5" cy="12" r="4"/>
+      <circle cx="14" cy="7.5" r="2.4"/>
+      <circle cx="15.6" cy="13.5" r="1.3"/>
+    </g>
+  </symbol>
+  <symbol id="icon-book" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M10 4.5 C8.2 3.4 5.4 3.4 3.5 4.3 V15.5 C5.4 14.6 8.2 14.6 10 15.7 C11.8 14.6 14.6 14.6 16.5 15.5 V4.3 C14.6 3.4 11.8 3.4 10 4.5 Z"/>
+      <path d="M10 4.5 L10 15.7"/>
+    </g>
+  </symbol>
+  <symbol id="icon-flag" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M5 2.5 L5 18"/>
+      <path d="M5 3.5 L15.5 6.2 L5 9.5 Z"/>
+    </g>
+  </symbol>
+  <symbol id="icon-boutonniere" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="10" cy="5.6" r="2.6"/>
+      <path d="M10 8.2 L10 18"/>
+      <path d="M10 12.5 L6.8 15"/>
+      <path d="M10 14.5 L13 16.5"/>
+    </g>
+  </symbol>
+  <symbol id="icon-sash" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" stroke-linecap="round">
+      <circle cx="10" cy="4.5" r="1.4" fill="currentColor" stroke="none"/>
+      <path d="M10 6.2 L6.5 17.5 L10 14 L13.5 17.5 Z"/>
+    </g>
+  </symbol>
+  <symbol id="icon-veil" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="10" cy="3" r="1"/>
+      <path d="M10 4 C6 4 4 8.5 4 14 C6.2 12.6 8 12.2 10 12.2 C12 12.2 13.8 12.6 16 14 C16 8.5 14 4 10 4 Z"/>
+    </g>
+  </symbol>
+  <symbol id="icon-cord" viewBox="0 0 20 20">
+    <path fill="none" stroke="currentColor" stroke-width="1"
+      d="M4 10 C4 7.2 8 7.2 10 10 C12 12.8 16 12.8 16 10 C16 7.2 12 7.2 10 10 C8 12.8 4 12.8 4 10 Z"/>
+  </symbol>
+  <symbol id="icon-little-dress" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M10 2.5 L8.3 6.5 L4 17.5 L16 17.5 L11.7 6.5 Z"/>
+      <path d="M8.3 6.5 L11.7 6.5"/>
+    </g>
+  </symbol>
+  <symbol id="icon-tophat" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" stroke-linecap="round">
+      <rect x="6.5" y="3.5" width="7" height="7.5"/>
+      <path d="M3.5 11 L16.5 11 L16.5 13.2 L3.5 13.2 Z"/>
+    </g>
+  </symbol>
+  <symbol id="icon-coin" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1">
+      <ellipse cx="10" cy="14" rx="5.5" ry="2"/>
+      <ellipse cx="10" cy="10.5" rx="5.5" ry="2"/>
+      <ellipse cx="10" cy="7" rx="5.5" ry="2"/>
+    </g>
+  </symbol>
+  <symbol id="icon-ring-single" viewBox="0 0 20 20">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round">
+      <circle cx="10" cy="12.5" r="5.5"/>
+      <path d="M10 7 L8.5 4 L11.5 4 Z"/>
+    </g>
+  </symbol>
 </svg>
 
 <nav id="nav">
@@ -547,9 +732,8 @@
   </div>
   <div class="details-grid">
     <div class="detail-card">
-      <div class="photo-placeholder">
-        <svg><use href="#icon-photo"></use></svg>
-        <span>Ceremony Photo</span>
+      <div class="venue-photo">
+        <img src="https://ik.imagekit.io/jcsquo5nq/Joshua%20and%20Kyllyne/st%20john%20the%20baptist.jpg" alt="St. John the Baptist Parish">
       </div>
       <div class="venue-icon"><svg><use href="#icon-church"></use></svg></div>
       <span class="eyebrow">Ceremony</span>
@@ -561,9 +745,8 @@
       </a>
     </div>
     <div class="detail-card">
-      <div class="photo-placeholder">
-        <svg><use href="#icon-photo"></use></svg>
-        <span>Reception Photo</span>
+      <div class="venue-photo">
+        <img src="https://ik.imagekit.io/jcsquo5nq/Joshua%20and%20Kyllyne/aureo-la-union.jpg" alt="Aureo Hotel">
       </div>
       <div class="venue-icon"><svg><use href="#icon-venue"></use></svg></div>
       <span class="eyebrow">Reception</span>
@@ -611,25 +794,33 @@
     </div>
 
     <div class="ent-block">
-      <h3>Parents of the Groom</h3>
-      <div class="ent-single">Gina Ponte &amp; Jose Jerry Ponte</div>
+      <h3><svg class="h3-icon"><use href="#icon-heart"></use></svg>Parents of the Groom</h3>
+      <div class="ent-single-group">
+        <div class="ent-single">Gina Ponte</div>
+        <div class="ent-single">Jose Jerry Ponte</div>
+      </div>
     </div>
 
     <div class="ent-block">
-      <h3>Parents of the Bride</h3>
-      <div class="ent-single">Roselle Evangelista &amp; Bobby Ynalvez&nbsp;(&#10013;)</div>
+      <h3><svg class="h3-icon"><use href="#icon-heart"></use></svg>Parents of the Bride</h3>
+      <div class="ent-single-group">
+        <div class="ent-single">Roselle Evangelista</div>
+        <div class="ent-single">Bobby Ynalvez&nbsp;(&#10013;)</div>
+      </div>
     </div>
 
     <div class="ent-block">
-      <h3>Guardians of the Bride</h3>
+      <h3><svg class="h3-icon"><use href="#icon-shield"></use></svg>Guardians of the Bride</h3>
       <div class="ent-columns">
-        <div class="pair">Sheila Ynalvez &amp; Ivan Ibanez</div>
-        <div class="pair">Beatriz Ynalvez &amp; Isabelo Ynalvez Sr.&nbsp;(&#10013;)</div>
+        <div class="pair">Sheila Ynalvez</div>
+        <div class="pair">Ivan Ibanez</div>
+        <div class="pair">Beatriz Ynalvez</div>
+        <div class="pair">Isabelo Ynalvez Sr.&nbsp;(&#10013;)</div>
       </div>
     </div>
 
     <div class="sponsors-block">
-      <h3>Principal Sponsors</h3>
+      <h3><svg class="h3-icon"><use href="#icon-medal"></use></svg>Principal Sponsors</h3>
       <div class="ent-columns">
         <div class="pair">Mr. Isabelo Ynalvez Jr. &amp; Mrs. Rubyllee Ynalvez</div>
         <div class="pair">Ms. MJ Sarmiento &amp; Mrs. Leticia Julio</div>
@@ -682,15 +873,17 @@
     </div>
 
     <div class="ent-block">
-      <h3>Best Man &amp; Maid of Honor</h3>
-      <div class="ent-columns">
-        <div class="pair">John Richard Cura — Best Man</div>
-        <div class="pair">Jovelyn Molina — Maid of Honor</div>
-      </div>
+      <h3><svg class="h3-icon"><use href="#icon-boutonniere"></use></svg>Best Man</h3>
+      <div class="ent-single">Mr. John Richard Cura</div>
     </div>
 
     <div class="ent-block">
-      <h3>Matron of Honor &amp; Man of Honor</h3>
+      <h3><svg class="h3-icon"><use href="#icon-sash"></use></svg>Maid of Honor</h3>
+      <div class="ent-single">Ms. Jovelyn Molina</div>
+    </div>
+
+    <div class="ent-block">
+      <h3><svg class="h3-icon"><use href="#icon-crown"></use></svg>Matron of Honor &amp; Man of Honor</h3>
       <div class="ent-columns">
         <div class="pair">Princess Lhyn Ynalvez</div>
         <div class="pair">Kyle Bob Ynalvez</div>
@@ -698,7 +891,7 @@
     </div>
 
     <div class="ent-block">
-      <h3>Groomsmen</h3>
+      <h3><svg class="h3-icon"><use href="#icon-bowtie"></use></svg>Groomsmen</h3>
       <div class="ent-grid">
         <div class="name">Clifford Caranay</div>
         <div class="name">Jerson Ponte</div>
@@ -714,7 +907,7 @@
     </div>
 
     <div class="ent-block">
-      <h3>Bridesmaids</h3>
+      <h3><svg class="h3-icon"><use href="#icon-bouquet"></use></svg>Bridesmaids</h3>
       <div class="ent-grid">
         <div class="name">Jessica Yaranon</div>
         <div class="name">Justyn Nicole</div>
@@ -731,25 +924,37 @@
     </div>
 
     <div class="ent-block">
-      <h3>Candle · Veil · Cord Sponsors</h3>
-      <div class="ent-columns">
-        <div class="pair">Candle — Mary Joyce Ponte &amp; Zenmarc Pedres</div>
-        <div class="pair">Veil — Mary Jergin Glory &amp; Third Isabelo Ynalvez</div>
-        <div class="pair">Cord — Faezel Antoinette Ibanez &amp; Raphael Ynalvez</div>
-      </div>
+      <h3><svg class="h3-icon"><use href="#icon-candle"></use></svg>Candle Sponsors</h3>
+      <div class="ent-single">Mary Joyce Ponte &amp; Zenmarc Pedres</div>
     </div>
 
     <div class="ent-block">
-      <h3>Little Bride, Little Groom &amp; Flower Girl</h3>
-      <div class="ent-columns">
-        <div class="pair">Little Bride — Yzera Yael Ibanez</div>
-        <div class="pair">Little Groom — Zion Christian Tugade</div>
-        <div class="pair">Flower Girl — Yzabella Triz Ynalvez</div>
-      </div>
+      <h3><svg class="h3-icon"><use href="#icon-veil"></use></svg>Veil Sponsors</h3>
+      <div class="ent-single">Mary Jergin Glory &amp; Third Isabelo Ynalvez</div>
     </div>
 
     <div class="ent-block">
-      <h3>Bubble Girls</h3>
+      <h3><svg class="h3-icon"><use href="#icon-cord"></use></svg>Cord Sponsors</h3>
+      <div class="ent-single">Faezel Antoinette Ibanez &amp; Raphael Ynalvez</div>
+    </div>
+
+    <div class="ent-block">
+      <h3><svg class="h3-icon"><use href="#icon-little-dress"></use></svg>Little Bride</h3>
+      <div class="ent-single">Yzera Yael Ibanez</div>
+    </div>
+
+    <div class="ent-block">
+      <h3><svg class="h3-icon"><use href="#icon-tophat"></use></svg>Little Groom</h3>
+      <div class="ent-single">Zion Christian Tugade</div>
+    </div>
+
+    <div class="ent-block">
+      <h3><svg class="h3-icon"><use href="#icon-flower"></use></svg>Flower Girl</h3>
+      <div class="ent-single">Yzabella Triz Ynalvez</div>
+    </div>
+
+    <div class="ent-block">
+      <h3><svg class="h3-icon"><use href="#icon-bubble"></use></svg>Bubble Girls</h3>
       <div class="ent-grid">
         <div class="name">Eunice Orquia</div>
         <div class="name">Meghan Tugade</div>
@@ -764,22 +969,33 @@
     </div>
 
     <div class="ent-block">
-      <h3>Bible, Coin &amp; Ring Bearers</h3>
-      <div class="ent-columns">
-        <div class="pair">Bible — Jessica Edrad &amp; Denzill Orenzo</div>
-        <div class="pair">Coin — Zyren Matt Ynalvez &amp; Jericho Edrad</div>
-        <div class="pair">Ring — Kim Julio &amp; Tristan Decuzar</div>
-      </div>
+      <h3><svg class="h3-icon"><use href="#icon-book"></use></svg>Bible Bearer</h3>
+      <div class="ent-single">Jessica Edrad &amp; Denzill Orenzo</div>
     </div>
 
     <div class="ent-block">
-      <h3>Banner Bearers</h3>
+      <h3><svg class="h3-icon"><use href="#icon-coin"></use></svg>Coin Bearer</h3>
+      <div class="ent-single">Zyren Matt Ynalvez &amp; Jericho Edrad</div>
+    </div>
+
+    <div class="ent-block">
+      <h3><svg class="h3-icon"><use href="#icon-ring-single"></use></svg>Ring Bearer</h3>
+      <div class="ent-single">Kim Julio &amp; Tristan Decuzar</div>
+    </div>
+
+    <div class="ent-block">
+      <h3><svg class="h3-icon"><use href="#icon-flag"></use></svg>Banner Bearers</h3>
       <div class="ent-columns">
-        <div class="pair">John Michael Bruan &amp; Dan Jake Pasamic</div>
-        <div class="pair">Laurence Tugade &amp; Zion Evangelista</div>
-        <div class="pair">Marius Ynalvez &amp; Raeven Rebebes</div>
-        <div class="pair">Ace Tugade &amp; Liam Wilson</div>
-        <div class="pair">Christian Caden Dronio &amp; Carl Eugene Asunio</div>
+        <div class="pair">John Michael Bruan</div>
+        <div class="pair">Dan Jake Pasamic</div>
+        <div class="pair">Laurence Tugade</div>
+        <div class="pair">Zion Evangelista</div>
+        <div class="pair">Marius Ynalvez</div>
+        <div class="pair">Raeven Rebebes</div>
+        <div class="pair">Ace Tugade</div>
+        <div class="pair">Liam Wilson</div>
+        <div class="pair">Christian Caden Dronio</div>
+        <div class="pair">Carl Eugene Asunio</div>
       </div>
     </div>
   </div>
@@ -870,6 +1086,10 @@
   <div class="credit">Crafted with love by <a href="https://tiktok.com/@loveanne.ph" target="_blank" rel="noopener">Love, Anne</a></div>
 </footer>
 
+<button id="backToTop" aria-label="Back to top">
+  <svg><use href="#icon-arrow-up"></use></svg>
+</button>
+
 <script>
   // Loader
   window.addEventListener('load', () => {
@@ -895,6 +1115,30 @@
     navToggle.classList.remove('open');
     navToggle.setAttribute('aria-expanded', 'false');
   }));
+
+  // Scroll-reveal for section headers and cards
+  const revealTargets = document.querySelectorAll(
+    '.sec-head, .detail-card, .ent-block, .gift-card, .sponsors-block, .note-box, .hashtag-row, .rsvp-section .section-inner > *'
+  );
+  revealTargets.forEach(el => el.classList.add('reveal'));
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  revealTargets.forEach(el => revealObserver.observe(el));
+
+  // Back to top
+  const backToTop = document.getElementById('backToTop');
+  window.addEventListener('scroll', () => {
+    backToTop.classList.toggle('show', window.scrollY > 900);
+  });
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 
   // Countdown to Nov 17, 2026 2:15 PM (Philippine Time, UTC+8)
   const weddingDate = new Date('2026-11-17T14:15:00+08:00').getTime();
